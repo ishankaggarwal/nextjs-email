@@ -15,8 +15,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { collection, addDoc } from "firebase/firestore"; 
 import { db } from "@/firebase-config";
+import { Resend } from 'resend';
 
 const formSchema = z.object({
+  firstName: z.string().min(5).max(50),
     email: z.string().email(),
   })
 
@@ -25,6 +27,7 @@ function FormComponent() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+          firstName:"",
           email: "",
         },
       })
@@ -34,7 +37,17 @@ function FormComponent() {
             const docRef = await addDoc(collection(db, "users"), {
               email:values.email
             });
+            const emailSend = await fetch('http://localhost:3000/api/send', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ email: values.email })
+            });
             console.log("Document written with ID: ", docRef.id);
+            if(emailSend.ok){
+              console.log("Email sent");
+            }
           } catch (e) {
             console.error("Error adding document: ", e);
           }
@@ -43,6 +56,19 @@ function FormComponent() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="firstName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>First Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="email"
