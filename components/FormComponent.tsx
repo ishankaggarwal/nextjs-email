@@ -42,7 +42,7 @@ function FormComponent() {
               headers: {
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ email: values.email })
+              body: JSON.stringify({ email: values.email,name: values.firstName})
             });
             console.log("Document written with ID: ", docRef.id);
             if(emailSend.ok){
