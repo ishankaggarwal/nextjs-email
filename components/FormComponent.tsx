@@ -13,6 +13,8 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { collection, addDoc } from "firebase/firestore"; 
+import { db } from "@/firebase-config";
 
 const formSchema = z.object({
     email: z.string().email(),
@@ -27,8 +29,15 @@ function FormComponent() {
         },
       })
 
-      function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+      async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            const docRef = await addDoc(collection(db, "users"), {
+              email:values.email
+            });
+            console.log("Document written with ID: ", docRef.id);
+          } catch (e) {
+            console.error("Error adding document: ", e);
+          }
       }
 
   return (
