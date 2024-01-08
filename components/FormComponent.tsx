@@ -1,5 +1,6 @@
 "use client";
 
+import {useState} from 'react';
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -22,6 +23,7 @@ const formSchema = z.object({
   })
 
 function FormComponent() {
+    const [clicked,setClicked] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -31,7 +33,13 @@ function FormComponent() {
         },
       })
 
+      async function sleep(interval : number){
+        return new Promise((resolve) => setTimeout(resolve, interval));
+      }
+
       async function onSubmit(values: z.infer<typeof formSchema>) {
+        setClicked(true);
+        sleep(2000);
         try {
             const docRef = await addDoc(collection(db, "users"), {
               email:values.email
@@ -51,6 +59,7 @@ function FormComponent() {
           } catch (e) {
             console.error("Error adding document: ", e);
           }
+          setClicked(false);
       }
 
   return (
@@ -82,7 +91,7 @@ function FormComponent() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        {!clicked ? <Button type="submit">Submit</Button> : "Loading..."}
       </form>
     </Form>
   )
